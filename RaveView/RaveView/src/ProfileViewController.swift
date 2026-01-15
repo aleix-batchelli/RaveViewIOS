@@ -14,7 +14,7 @@ class ProfileViewController: UIViewController {
     // Ensure this is connected to the View above your TableView in Storyboard
     @IBOutlet weak var headerView: UIView!
     
-    // Changed: Array now holds 'Review' structs instead of Strings
+    // Array holds 'Review' structs
     var reviews: [Review] = []
     
     override func viewDidLoad() {
@@ -26,22 +26,25 @@ class ProfileViewController: UIViewController {
         // 2. Load API Data (Mock)
         getReviews()
         
-        // 3. Setup the TableView for regular items only
-        // Note: You might want to switch this to a custom cell (e.g. "ReviewCell") later
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "RegularCell")
+        // 3. Setup TableView with Custom XIB
+        // CHANGED: Register the NIB for "ReviewCell"
+        tableView.register(UINib(nibName: "ReviewTableViewCell", bundle: nil), forCellReuseIdentifier: "ReviewCell")
         
         tableView.dataSource = self
         tableView.delegate = self
         
-        // Optional: Remove extra separators below the content
+        // Remove extra separators
         tableView.tableFooterView = UIView()
+        
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.estimatedRowHeight = 100
+        tableView.reloadData()
     }
     
     // MARK: - API Calls
     
     func getReviews() {
-        // TODO: Implement actual API call here
-        // For now, populate with dummy data
+        // Mock Data
         reviews = [
             Review(id: "r1", title: "Amazing night!", body: "Loved the transitions.", author: "User1", rating: 5),
             Review(id: "r2", title: "Solid set", body: "Good energy throughout.", author: "User2", rating: 4),
@@ -52,16 +55,12 @@ class ProfileViewController: UIViewController {
     }
     
     func fetchDJSet(for reviewID: String) -> DJSet {
-        // TODO: Implement API logic to find which DJ Set this review belongs to.
-        // For now, return a placeholder/dummy DJSet.
         return DJSet(id: 999, name: "Fetched Set Example", auth: "Fetched Artist", duration: 120, image: "placeholder_img", reviews: [])
     }
     
     // MARK: - Header Setup
     
     func setupStaticHeader() {
-        // Using "Frame" method to avoid constraints crashes with Cells in Views
-        // Ensure the XIB filename is exactly "ProfileInfoTableViewCell"
         guard let profileHeader = Bundle.main.loadNibNamed("ProfileInfoTableViewCell", owner: self, options: nil)?.first as? UIView else {
             print("Error: Could not load ProfileInfoTableViewCell from XIB")
             return
@@ -69,15 +68,21 @@ class ProfileViewController: UIViewController {
         
         headerView.addSubview(profileHeader)
         
-        // Set frame and autoresizing mask (Safe for Cells)
-        profileHeader.frame = headerView.bounds
-        profileHeader.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        // SWITCHED TO CONSTRAINTS (Safer than Frame)
+        profileHeader.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            profileHeader.topAnchor.constraint(equalTo: headerView.topAnchor),
+            profileHeader.bottomAnchor.constraint(equalTo: headerView.bottomAnchor),
+            profileHeader.leadingAnchor.constraint(equalTo: headerView.leadingAnchor),
+            profileHeader.trailingAnchor.constraint(equalTo: headerView.trailingAnchor)
+        ])
     }
     
     // MARK: - Navigation
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "Profle_SetDetail" {
+        // FIXED TYPO: "Profle" -> "Profile" to match didSelectRowAt
+        if segue.identifier == "Profile_SetDetail" {
             if let destVC = segue.destination as? SetDetailsViewController {
                 if let selectedSet = sender as? DJSet {
                     destVC.setInfo = selectedSet
@@ -99,15 +104,19 @@ extension ProfileViewController: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "RegularCell", for: indexPath)
+        // CHANGED: Dequeue the custom class
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: "ReviewCell", for: indexPath) as? ReviewTableViewCell else {
+            return UITableViewCell()
+        }
         
         let review = reviews[indexPath.row]
         
-        // Configure standard cell with Review data
-        var content = cell.defaultContentConfiguration()
-        content.text = review.title
-        content.secondaryText = "\(review.rating)/5 - \(review.author)"
-        cell.contentConfiguration = content
+        // CHANGED: Assign data directly to IBOutlets
+        // Make sure these outlets exist in your ReviewTableViewCell.swift
+        //cell.titleLabel?.text = review.title
+        //cell.bodyLabel?.text = review.body
+        //cell.authorLabel?.text = review.author
+        //cell.ratingLabel?.text = "\(review.rating)/5"
         
         return cell
     }
@@ -115,11 +124,9 @@ extension ProfileViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
         let selectedReview = reviews[indexPath.row]
-        
-        // 1. Fetch the Set associated with this review (Mock function)
         let setToSend = fetchDJSet(for: selectedReview.id)
         
-        // 2. Perform Segue sending the DJSet
+        // Identifier: "Profile_SetDetail"
         performSegue(withIdentifier: "Profile_SetDetail", sender: setToSend)
         
         tableView.deselectRow(at: indexPath, animated: true)

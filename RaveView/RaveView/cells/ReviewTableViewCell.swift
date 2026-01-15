@@ -12,9 +12,12 @@ class ReviewTableViewCell: UITableViewCell {
     @IBOutlet weak var date: UILabel!
     @IBOutlet weak var username: UILabel!
     @IBOutlet weak var review: UILabel!
+    @IBOutlet weak var img: UIImageView!
     
     override func awakeFromNib() {
         super.awakeFromNib()
+        
+        img.layer.borderColor = UIColor.white.cgColor
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {

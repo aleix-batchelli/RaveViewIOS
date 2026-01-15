@@ -23,29 +23,28 @@ class SearchViewController: UIViewController, UITextFieldDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // 1. Setup Header (Safe Method)
+        // 1. Setup Header
         setupStaticHeader()
         
         // 2. Setup Search Bar
-        searchBar.delegate = self // Handle "Enter" key
+        searchBar.delegate = self
         searchBar.placeholder = "Search for sets..."
         
-        // 3. Setup TableView
-        // Note: You can also register "SetPreviewTableViewCell" here if you want the nicer design
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "RegularCell")
+        // 3. Setup TableView (Using the Custom XIB)
+        // CHANGED: Register the NIB instead of the generic class
+        tableView.register(UINib(nibName: "SetPreviewTableViewCell", bundle: nil), forCellReuseIdentifier: "SetPreviewCell")
         
         tableView.dataSource = self
         tableView.delegate = self
         
-        // Hide empty rows when there are no results
+        // Hide empty rows
         tableView.tableFooterView = UIView()
     }
     
     // MARK: - Search Logic
     
-    // This function runs when the user presses "Return" on the keyboard
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        textField.resignFirstResponder() // Hide keyboard
+        textField.resignFirstResponder()
         
         if let query = textField.text, !query.isEmpty {
             fetchSearchResults(query: query)
@@ -54,35 +53,37 @@ class SearchViewController: UIViewController, UITextFieldDelegate {
     }
     
     func fetchSearchResults(query: String) {
-        // TODO: Implement actual API call here using 'query'
         print("Fetching results for: \(query)")
         
-        // FAKE RESULTS: Create dummy data based on the search
+        // FAKE RESULTS
         searchResults = [
             DJSet(id: 101, name: "Search Result: \(query)", auth: "Test Artist 1", duration: 60, image: "img_a", reviews: []),
             DJSet(id: 102, name: "Best of \(query)", auth: "Test Artist 2", duration: 90, image: "img_b", reviews: []),
             DJSet(id: 103, name: "Underground \(query)", auth: "Test Artist 3", duration: 120, image: "img_c", reviews: [])
         ]
         
-        // Refresh the UI
         tableView.reloadData()
     }
     
     // MARK: - Header Setup
     
     func setupStaticHeader() {
-        // Load the XIB
+        // Ensure we cast to the specific class if possible, or just UIView
         guard let customHeader = Bundle.main.loadNibNamed("TopBarTableViewCell", owner: self, options: nil)?.first as? UIView else {
             print("Error: Could not load TopBarTableViewCell from XIB")
             return
         }
         
-        // Add to view
         headerView.addSubview(customHeader)
         
-        // FIX: Use Frame + AutoresizingMask to prevent crashes with UITableViewCell
-        customHeader.frame = headerView.bounds
-        customHeader.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        // Use Constraints for safety (matches HomeViewController logic)
+        customHeader.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            customHeader.topAnchor.constraint(equalTo: headerView.topAnchor),
+            customHeader.bottomAnchor.constraint(equalTo: headerView.bottomAnchor),
+            customHeader.leadingAnchor.constraint(equalTo: headerView.leadingAnchor),
+            customHeader.trailingAnchor.constraint(equalTo: headerView.trailingAnchor)
+        ])
     }
     
     // MARK: - Navigation
@@ -110,15 +111,17 @@ extension SearchViewController: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "RegularCell", for: indexPath)
+        // CHANGED: Dequeue with the specific class casting
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: "SetPreviewCell", for: indexPath) as? SetPreviewTableViewCell else {
+            return UITableViewCell()
+        }
         
         let item = searchResults[indexPath.row]
         
-        // Configure standard cell
-        var content = cell.defaultContentConfiguration()
-        content.text = item.name
-        content.secondaryText = item.auth
-        cell.contentConfiguration = content
+        // CHANGED: Access IBOutlets directly (No 'defaultContentConfiguration')
+        //cell.titleLabel?.text = item.name
+        //cell.artistLabel?.text = item.auth
+        //cell.coverImageView?.image = UIImage(named: item.image)
         
         return cell
     }
@@ -126,7 +129,6 @@ extension SearchViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let selectedItem = searchResults[indexPath.row]
         
-        // Perform Segue
         performSegue(withIdentifier: "Search_SetDetail", sender: selectedItem)
         
         tableView.deselectRow(at: indexPath, animated: true)

@@ -5,31 +5,27 @@ class HomeViewController: UIViewController {
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var headerView: UIView!
     
-    // Initialize empty array so it's ready to use
     var sets: [DJSet] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // 1. Setup Header
         setupStaticHeader()
-        
-        // 2. Load Data
         getSets()
         
-        // 3. Setup TableView
+        // 1. Keep this registration since you are using a XIB file
         tableView.register(UINib(nibName: "SetPreviewTableViewCell", bundle: nil), forCellReuseIdentifier: "SetPreviewCell")
+        
         tableView.dataSource = self
         tableView.delegate = self
         
-        // formatting
+        // Automatic height calculation
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 100
-        tableView.reloadData() // Refresh table after getting data
+        tableView.reloadData()
     }
     
     func getSets() {
-        // Correct Syntax: You must use parameter labels (id:, name:, etc.)
         sets = [
             DJSet(id: 1, name: "Summer Vibes", auth: "DJ Kaled", duration: 60, image: "img1", reviews: []),
             DJSet(id: 2, name: "Techno Bunker", auth: "Adam Beyer", duration: 120, image: "img2", reviews: []),
@@ -37,10 +33,10 @@ class HomeViewController: UIViewController {
         ]
     }
     
-    // Handle the segue to pass data
+    // MARK: - Navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        // MATCHED Identifier
         if segue.identifier == "ShowDetails" {
-            // Make sure your SetDetailsViewController has a variable: var setInfo: DJSet?
             if let destVC = segue.destination as? SetDetailsViewController {
                 if let selectedSet = sender as? DJSet {
                     destVC.setInfo = selectedSet
@@ -55,12 +51,10 @@ class HomeViewController: UIViewController {
             return
         }
         
-        // FIX: Use 'headerView' here (not headerVIew)
         headerView.addSubview(customHeader)
-        
         customHeader.translatesAutoresizingMaskIntoConstraints = false
+        
         NSLayoutConstraint.activate([
-            // FIX: Ensure all constraints use 'headerView'
             customHeader.topAnchor.constraint(equalTo: headerView.topAnchor),
             customHeader.bottomAnchor.constraint(equalTo: headerView.bottomAnchor),
             customHeader.leadingAnchor.constraint(equalTo: headerView.leadingAnchor),
@@ -77,7 +71,7 @@ extension HomeViewController: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return sets.count // Fixed: Use 'sets', not 'regularItems'
+        return sets.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -87,11 +81,15 @@ extension HomeViewController: UITableViewDataSource, UITableViewDelegate {
         
         let item = sets[indexPath.row]
         
-        // Configure the cell
-        var content = cell.defaultContentConfiguration()
-        content.text = item.name
-        content.secondaryText = item.auth
-        cell.contentConfiguration = content
+        // --- FIX STARTS HERE ---
+        // Do NOT use defaultContentConfiguration().
+        // Access the custom outlets directly.
+        // Make sure these names match the variables in your SetPreviewTableViewCell.swift file.
+        
+        //cell.titleLabel?.text = item.name      // Replace 'titleLabel' with your actual outlet name
+        //cell.artistLabel?.text = item.auth     // Replace 'artistLabel' with your actual outlet name
+        //cell.coverImageView?.image = UIImage(named: item.image)
+        // --- FIX ENDS HERE ---
         
         return cell
     }
@@ -99,8 +97,8 @@ extension HomeViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let selectedItem = sets[indexPath.row]
         
-        // Trigger the segue
-        performSegue(withIdentifier: "Home_SetDetail", sender: selectedItem)
+        // MATCHED Identifier: "ShowDetails"
+        performSegue(withIdentifier: "ShowDetails", sender: selectedItem)
         
         tableView.deselectRow(at: indexPath, animated: true)
     }
