@@ -26,7 +26,7 @@ struct DJSetRow: Codable, Identifiable {
 struct DJSetsAPI {
     let client: SupabaseClient
 
-    func fetchTopByReviews(limit: Int = 10) async throws -> [DJSetRow] {
+    func fetchTopByReviews(limit: Int = 10) async throws -> [DJSet] {
         try await client
             .from("dj_sets")
             .select()
@@ -36,7 +36,7 @@ struct DJSetsAPI {
             .value
     }
 
-    func searchSets(query: String, limit: Int = 30) async throws -> [DJSetRow] {
+    func searchSets(query: String, limit: Int = 30) async throws -> [DJSet] {
         let q = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !q.isEmpty else { return [] }
 
@@ -50,6 +50,15 @@ struct DJSetsAPI {
             .execute()
             .value
     }
+    
+    func fetchReviews(query: UUID, limit: Int = 30) async throws -> [Review] {
+        return try await client
+            .from("reviews")
+            .select()
+            .eq("set_id", value: query.uuidString.lowercased())
+            .execute()
+            .value
+    }
 }
 
 class HomeViewController: UIViewController {
@@ -58,7 +67,7 @@ class HomeViewController: UIViewController {
     @IBOutlet weak var headerView: UIView!
 
     private let api = DJSetsAPI(client: SupabaseManager.shared.client)
-    var sets: [DJSetRow] = []
+    var sets: [DJSet] = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -94,11 +103,15 @@ class HomeViewController: UIViewController {
 
     // MARK: - Navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "ShowDetails" {
+        
+        // 1. CORRECCIÓN: Usa el mismo ID que pusiste en didSelectRowAt
+        if segue.identifier == "Home_SetDetail" {
+            
             if let destVC = segue.destination as? SetDetailsViewController,
-               let selectedSet = sender as? DJSetRow {
-                // Adjust SetDetailsViewController to accept DJSetRow or map it
-                // destVC.setInfo = selectedSet
+               let selectedSet = sender as? DJSet {
+                
+                // 2. CORRECCIÓN: Descomenta esta línea para pasar los datos
+                destVC.setInfo = selectedSet
             }
         }
     }

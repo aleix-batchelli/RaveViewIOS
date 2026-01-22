@@ -6,15 +6,7 @@
 //
 import Foundation
 
-struct Review {
-    let id: String
-    let title: String
-    let body: String
-    let author: String
-    let rating: Int
-}
-
-struct ReviewSupabase: Codable, Identifiable {
+struct Review: Codable, Identifiable  {
     let id: Int
     let set_id: UUID
     let user_id: UUID
@@ -24,3 +16,4 @@ struct ReviewSupabase: Codable, Identifiable {
     let created_at: Date
     let updated_at: Date
 }
+

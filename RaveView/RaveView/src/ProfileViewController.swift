@@ -45,18 +45,18 @@ class ProfileViewController: UIViewController {
     
     func getReviews() {
         // Mock Data
-        reviews = [
+        /*reviews = [
             Review(id: "r1", title: "Amazing night!", body: "Loved the transitions.", author: "User1", rating: 5),
             Review(id: "r2", title: "Solid set", body: "Good energy throughout.", author: "User2", rating: 4),
             Review(id: "r3", title: "Too crowded", body: "Music was great though.", author: "User3", rating: 3)
-        ]
+        ]*/
         
         tableView.reloadData()
     }
     
-    func fetchDJSet(for reviewID: String) -> DJSet {
+    /*func fetchDJSet(for reviewID: String) -> DJSet {
         return DJSet(id: 999, name: "Fetched Set Example", auth: "Fetched Artist", duration: 120, image: "placeholder_img", reviews: [])
-    }
+    }*/
     
     // MARK: - Header Setup
     
@@ -83,11 +83,11 @@ class ProfileViewController: UIViewController {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         // FIXED TYPO: "Profle" -> "Profile" to match didSelectRowAt
         if segue.identifier == "Profile_SetDetail" {
-            if let destVC = segue.destination as? SetDetailsViewController {
-                if let selectedSet = sender as? DJSet {
-                    destVC.setInfo = selectedSet
-                }
-            }
+            //if let destVC = segue.destination as? SetDetailsViewController {
+              //  if let selectedSet = sender as? DJSet {
+                    //destVC.setInfo = selectedSet
+                //}
+            //}
         }
     }
 }
@@ -124,10 +124,10 @@ extension ProfileViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
         let selectedReview = reviews[indexPath.row]
-        let setToSend = fetchDJSet(for: selectedReview.id)
+        //let setToSend = fetchDJSet(for: selectedReview.id)
         
         // Identifier: "Profile_SetDetail"
-        performSegue(withIdentifier: "Profile_SetDetail", sender: setToSend)
+        //performSegue(withIdentifier: "Profile_SetDetail", sender: setToSend)
         
         tableView.deselectRow(at: indexPath, animated: true)
     }

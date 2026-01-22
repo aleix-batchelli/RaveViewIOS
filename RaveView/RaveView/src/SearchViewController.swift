@@ -16,7 +16,7 @@ final class SearchViewController: UIViewController, UITextFieldDelegate {
     private let api = DJSetsAPI(client: SupabaseManager.shared.client)
 
     // ✅ Now using the Supabase model
-    var searchResults: [DJSetRow] = []
+    var searchResults: [DJSet] = []
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -82,8 +82,8 @@ final class SearchViewController: UIViewController, UITextFieldDelegate {
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "Search_SetDetail",
-           let destVC = segue.destination as? SetDetailsViewController,
-           let selectedSet = sender as? DJSetRow {
+           //let destVC = segue.destination as? SetDetailsViewController,
+           let selectedSet = sender as? DJSet {
 
             // ⚠️ You must update SetDetailsViewController to accept DJSetRow
             // destVC.setInfoRow = selectedSet

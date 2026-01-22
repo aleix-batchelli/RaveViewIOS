@@ -50,7 +50,7 @@ final class SetPreviewTableViewCell: UITableViewCell {
         img.image = UIImage(named: "placeholder")
     }
 
-    func configure(with set: DJSetRow) {
+    func configure(with set: DJSet) {
         DjSetName.text = set.title
         ArtistName.text = set.artist_name
         numReviews.text = "\(set.ratings_count ?? 0)"

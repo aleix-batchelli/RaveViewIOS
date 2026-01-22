@@ -6,28 +6,23 @@
 //
 
 import Foundation
+import UIKit
+import Supabase
 
-struct DJSet { // Renamed from Set to DJSet
-    var id: Int
-    var name: String
-    var auth: String
-    var duration: Int
-    var image: String
-    var reviews: [Review] // Assuming you have a Review struct defined elsewhere
-}
-
-struct DJSetSupabase: Codable, Identifiable {
+struct DJSet:  Codable, Identifiable  { // Renamed from Set to DJSet
     let id: UUID
     let title: String
     let artist_name: String
     let url: String
-    let platform: String          // enum más adelante si quieres
+    let platform: String
     let duration_sec: Int?
-    let uploaded_at: Date?
+    let uploaded_at: String?
     let thumbnail_url: String?
     let created_by: UUID
-    let created_at: Date
+    let created_at: String
     let avg_rating: Double?
     let ratings_count: Int?
+    //var reviews: [Review] // Assuming you have a Review struct defined elsewhere
 }
+
 
