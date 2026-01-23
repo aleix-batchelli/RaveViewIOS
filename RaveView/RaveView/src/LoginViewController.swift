@@ -9,23 +9,52 @@ import UIKit
 
 class LoginViewController: UIViewController {
 
+    @IBOutlet weak var errorLabel: UILabel!
+    @IBOutlet weak var email: UITextField!
+    @IBOutlet weak var loginBtn: UIButton!
+    @IBOutlet weak var password: UITextField!
     @IBOutlet weak var registerBtn: UIButton!
     
+private let auth = AuthAPI(client: SupabaseManager.shared.client)
+
     override func viewDidLoad() {
         super.viewDidLoad()
+        errorLabel.text = ""
+    }
+
+    @IBAction func loginBtnPressed(_ sender: Any) {
+        let mail = email.text ?? ""
+        let pass = password.text ?? ""
+
+        guard !mail.isEmpty, !pass.isEmpty else {
+            errorLabel.text = "Fill all fields"
+            return
+        }
+        
+        print(mail)
+        print(pass)
+
+        Task {
+            do {
+                try await auth.login(email: mail, password: pass)
+                await MainActor.run {
+                    self.performSegue(withIdentifier: "Login_Home", sender: self)
+                }
+            }catch {
+                print("LOGIN ERROR:", error)
+                await MainActor.run {
+                    self.errorLabel.text = "\(error)"
+                }
+            }
+        }
     }
 
     @IBAction func registerBtnPressed(_ sender: Any) {
-        // Trigger the segue using the identifier set in Storyboard
         performSegue(withIdentifier: "Login_Register", sender: self)
     }
-    
-    // Optional: Use this to pass data to the Register screen before it loads
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "Login_Register" {
-            // let destinationVC = segue.destination as? RegisterViewController
-            // destinationVC?.someProperty = "Hello"
-        }
+
+    func goToHome() {
+        performSegue(withIdentifier: "Login_Home", sender: self)
     }
 }
 

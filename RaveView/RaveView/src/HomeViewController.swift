@@ -22,44 +22,7 @@ struct DJSetRow: Codable, Identifiable {
 
 
 
-// MARK: - API
-struct DJSetsAPI {
-    let client: SupabaseClient
 
-    func fetchTopByReviews(limit: Int = 10) async throws -> [DJSet] {
-        try await client
-            .from("dj_sets")
-            .select()
-            .order("ratings_count", ascending: false)
-            .limit(limit)
-            .execute()
-            .value
-    }
-
-    func searchSets(query: String, limit: Int = 30) async throws -> [DJSet] {
-        let q = query.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !q.isEmpty else { return [] }
-
-        let pattern = "*\(q)*"
-
-        return try await client
-            .from("dj_sets")
-            .select()
-            .or("title.ilike.\(pattern),artist_name.ilike.\(pattern)")
-            .limit(limit)
-            .execute()
-            .value
-    }
-    
-    func fetchReviews(query: UUID, limit: Int = 30) async throws -> [Review] {
-        return try await client
-            .from("reviews")
-            .select()
-            .eq("set_id", value: query.uuidString.lowercased())
-            .execute()
-            .value
-    }
-}
 
 class HomeViewController: UIViewController {
 

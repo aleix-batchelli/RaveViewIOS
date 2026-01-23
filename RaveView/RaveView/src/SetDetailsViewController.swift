@@ -22,7 +22,7 @@ class SetDetailsViewController: UIViewController {
     // 1. Data Models
     var setInfo: DJSet?
     private let api = DJSetsAPI(client: SupabaseManager.shared.client)
-    var reviews: [Review] = [] // This array holds the actual downloaded data
+    var reviews: [ReviewWithProfile] = [] // This array holds the actual downloaded data
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -45,7 +45,7 @@ class SetDetailsViewController: UIViewController {
         Task {
             do {
                 // Fetch reviews from Supabase
-                let results = try await api.fetchReviews(query: query, limit: 30)
+                let results = try await api.fetchReviewsWithProfiles(forSetId: query, limit: 30)
                 
                 await MainActor.run {
                     self.reviews = results
@@ -184,6 +184,7 @@ extension SetDetailsViewController: UITableViewDataSource, UITableViewDelegate {
                 // Call the configure method on the cell (ensure you added this to ReviewTableViewCell)
                 cell.date.text = DateFormatter().string(from: reviewData.created_at)
                 cell.review.text = reviewData.comment
+                cell.username.text = reviewData.profiles.display_name ?? reviewData.profiles.username
             }
             
             cell.selectionStyle = .none
