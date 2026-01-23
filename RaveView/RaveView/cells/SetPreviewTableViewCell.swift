@@ -43,6 +43,7 @@ final class SetPreviewTableViewCell: UITableViewCell {
         score.font = .boldSystemFont(ofSize: score.font.pointSize)
         
         
+        
     }
 
     override func prepareForReuse() {

@@ -232,4 +232,12 @@ extension SetDetailsViewController: UITableViewDataSource, UITableViewDelegate, 
         )
         //call api / handle no set error!
     }
+    
 }
+
+private let dateFormatter: DateFormatter = {
+    let df = DateFormatter()
+    df.dateStyle = .medium
+    df.timeStyle = .none
+    return df
+}()

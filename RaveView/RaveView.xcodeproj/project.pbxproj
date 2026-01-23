@@ -20,7 +20,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		93417AF82F0FBF1000C02D65 /* Exceptions for "RaveView" folder in "RaveView" target */ = {
+		A5A58EBE2F239FF600F8FE09 /* Exceptions for "RaveView" folder in "RaveView" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -33,7 +33,7 @@
 		93417AE82F0FBF0E00C02D65 /* RaveView */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				93417AF82F0FBF1000C02D65 /* Exceptions for "RaveView" folder in "RaveView" target */,
+				A5A58EBE2F239FF600F8FE09 /* Exceptions for "RaveView" folder in "RaveView" target */,
 			);
 			path = RaveView;
 			sourceTree = "<group>";

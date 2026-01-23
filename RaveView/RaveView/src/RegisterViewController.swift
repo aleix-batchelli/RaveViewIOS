@@ -7,30 +7,66 @@
 
 import UIKit
 
-class RegisterViewController: UIViewController {
+final class RegisterViewController: UIViewController {
 
+    @IBOutlet weak var username: UITextField!
+    @IBOutlet weak var email: UITextField!
+    @IBOutlet weak var password1: UITextField!
+    @IBOutlet weak var password2: UITextField!
     @IBOutlet weak var loginBtn: UIButton!
+
+    @IBOutlet weak var errorLabel: UILabel!
+    
+    private let auth = AuthAPI(client: SupabaseManager.shared.client)
+
     override func viewDidLoad() {
         super.viewDidLoad()
+        errorLabel?.text = ""
 
-        // Do any additional setup after loading the view.
+        // Recomendado para email
+        email.autocapitalizationType = .none
+        email.autocorrectionType = .no
     }
-    
 
     @IBAction func loginBtnPressed(_ sender: Any) {
-        
-        self.dismiss(animated: false, completion: nil)
+        self.dismiss(animated: true)
     }
 
+    @IBAction func registerBtnPressed(_ sender: Any) {
+        let user = (username.text ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        let mail = (email.text ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        let p1 = password1.text ?? ""
+        let p2 = password2.text ?? ""
 
-    /*
-    // MARK: - Navigation
+        guard !user.isEmpty, !mail.isEmpty, !p1.isEmpty, !p2.isEmpty else {
+            errorLabel?.text = "Fill all fields"
+            return
+        }
 
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+        guard p1 == p2 else {
+            errorLabel?.text = "Passwords do not match"
+            return
+        }
+
+        guard p1.count >= 6 else {
+            errorLabel?.text = "Password too short"
+            return
+        }
+
+        Task {
+            do {
+                try await auth.register(email: mail, password: p1, username: user, displayName: user)
+
+                await MainActor.run {
+                    self.performSegue(withIdentifier: "Register_Home", sender: self)
+                }
+            } catch {
+                print("REGISTER ERROR:", error)
+                await MainActor.run {
+                    self.errorLabel?.text = "\(error)"
+                }
+            }
+        }
     }
-    */
-
 }
+
