@@ -17,6 +17,18 @@ struct Review: Codable, Identifiable  {
     let updated_at: Date
 }
 
+struct ReviewWithProfile: Codable, Identifiable {
+    let id: Int
+    let set_id: UUID
+    let user_id: UUID
+    let rating: Int
+    let comment: String?
+    let was_present: Bool
+    let created_at: Date
+    let updated_at: Date?
+    let profiles: Profile
+}
+
 extension Review {
     init(set_id: UUID, rating: Int, comment: String?, was_present: Bool) {
         self.id = 0

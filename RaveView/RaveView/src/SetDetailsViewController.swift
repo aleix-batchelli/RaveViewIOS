@@ -22,15 +22,7 @@ class SetDetailsViewController: UIViewController {
     // 1. Data Models
     var setInfo: DJSet?
     private let api = DJSetsAPI(client: SupabaseManager.shared.client)
-    var reviews: [Review] = []
-    
-    // 2. Performance Optimization: Create formatter once
-    private let dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .none
-        return formatter
-    }()
+    var reviews: [ReviewWithProfile] = [] // This array holds the actual downloaded data
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -50,7 +42,8 @@ class SetDetailsViewController: UIViewController {
     func fetchReviews(query: UUID) {
         Task {
             do {
-                let results = try await api.fetchReviews(query: query, limit: 30)
+                // Fetch reviews from Supabase
+                let results = try await api.fetchReviewsWithProfiles(forSetId: query, limit: 30)
                 
                 await MainActor.run {
                     self.reviews = results
@@ -172,6 +165,7 @@ extension SetDetailsViewController: UITableViewDataSource, UITableViewDelegate, 
                 // Use the shared 'dateFormatter' property created at top of class
                 cell.date.text = dateFormatter.string(from: reviewData.created_at)
                 cell.review.text = reviewData.comment
+                cell.username.text = reviewData.profiles.display_name ?? reviewData.profiles.username
             }
             
             cell.selectionStyle = .none
