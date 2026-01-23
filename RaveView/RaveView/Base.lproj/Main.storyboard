@@ -380,7 +380,6 @@
                                 <rect key="frame" x="0.0" y="0.0" width="402" height="874"/>
                             </imageView>
                             <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="n0H-KV-JVS">
-                            <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="n0H-KV-JVS">
                                 <rect key="frame" x="0.0" y="116" width="402" height="100"/>
                                 <color key="backgroundColor" white="1" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
