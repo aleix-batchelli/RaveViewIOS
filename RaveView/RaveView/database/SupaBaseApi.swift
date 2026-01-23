@@ -7,6 +7,15 @@
 
 import Supabase
 import Foundation
+import UIKit
+
+struct ReviewImageRow: Decodable {
+    let review_id: Int
+    let url: String
+    let path: String?
+    let created_at: String?
+}
+
 
 // MARK: - API
 struct DJSetsAPI {
@@ -20,6 +29,21 @@ struct DJSetsAPI {
             .limit(limit)
             .execute()
             .value
+    }
+    
+    func logout() {
+        Task {
+            do {
+                try await SupabaseManager.shared.client.auth.signOut()
+
+                await MainActor.run {
+                    // Volver al login
+                    //let storyboard = UIStoryboard(name: "Main", bundle: nil)
+                }
+            } catch {
+                print("LOGOUT ERROR:", error)
+            }
+        }
     }
 
     func searchSets(query: String, limit: Int = 30) async throws -> [DJSet] {
@@ -130,5 +154,113 @@ struct DJSetsAPI {
             .execute()
             .value
     }
+    
+    func fetchSetById(_ id: UUID) async throws -> DJSet {
+            try await client
+                .from("dj_sets")
+                .select()
+                .eq("id", value: id.uuidString.lowercased())
+                .single()
+                .execute()
+                .value
+    }
+    
+    func createReview(
+        setId: UUID,
+        rating: Int,
+        comment: String?,
+        wasPresent: Bool,
+        image: UIImage?
+    ) async throws {
+
+        let user = try await client.auth.session.user
+        let userId = user.id
+
+        // 1) Insert review and get the created review id
+        struct NewReviewRow: Encodable {
+            let set_id: UUID
+            let user_id: UUID
+            let rating: Int
+            let comment: String?
+            let was_present: Bool
+        }
+
+        struct InsertedReview: Decodable {
+            let id: Int
+        }
+
+        let payload = NewReviewRow(
+            set_id: setId,
+            user_id: userId,
+            rating: rating,
+            comment: comment,
+            was_present: wasPresent
+        )
+
+        // IMPORTANT: we need the inserted row returned to get its id
+        let inserted: InsertedReview = try await client
+            .from("reviews")
+            .insert(payload)
+            .select("id")
+            .single()
+            .execute()
+            .value
+
+        // 2) If no image, we're done
+        guard let image = image else { return }
+
+        // 3) Upload image to Storage
+        guard let data = image.jpegData(compressionQuality: 0.85) else {
+            throw NSError(domain: "ImageEncoding", code: 0)
+        }
+
+        let fileName = "\(UUID().uuidString.lowercased()).jpg"
+        let path = "reviews/\(setId.uuidString.lowercased())/\(inserted.id)/\(fileName)"
+
+        _ = try await client
+            .storage
+            .from("review-images")
+            .upload(path, data: data)
+
+        // If bucket is public: store public URL
+        let publicURL = try client
+            .storage
+            .from("review-images")
+            .getPublicURL(path: path)
+            .absoluteString
+
+        // 4) Insert into review_images
+        struct NewReviewImageRow: Encodable {
+            let review_id: Int
+            let url: String
+            let path: String
+        }
+
+        let imageRow = NewReviewImageRow(
+            review_id: inserted.id,
+            url: publicURL,
+            path: path
+        )
+
+
+        _ = try await client
+            .from("review_images")
+            .insert(imageRow)
+            .execute()
+    }
+    
+    func fetchReviewImage(forReviewId reviewId: Int) async throws -> ReviewImageRow? {
+        let rows: [ReviewImageRow] = try await client
+            .from("review_images")
+            .select("review_id, url, path, created_at")
+            .eq("review_id", value: reviewId)
+            .order("created_at", ascending: false)
+            .limit(1)
+            .execute()
+            .value
+
+        return rows.first
+    }
+
 
 }

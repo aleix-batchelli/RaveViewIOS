@@ -16,6 +16,7 @@ class ReviewDetailsViewController: UIViewController {
     @IBOutlet weak var date: UILabel!
     @IBOutlet weak var image: UIImageView!
     
+    @IBOutlet weak var reviewText: UILabel!
     @IBOutlet weak var star0: UIImageView!
     @IBOutlet weak var star1: UIImageView!
     @IBOutlet weak var star2: UIImageView!
@@ -27,6 +28,8 @@ class ReviewDetailsViewController: UIViewController {
     }
     
     var review: ReviewWithProfile?
+    private let api = DJSetsAPI(client: SupabaseManager.shared.client)
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -34,8 +37,11 @@ class ReviewDetailsViewController: UIViewController {
         username.text = review?.profiles.username
         wasThere.text = (review?.was_present == true) ? "I was there!" : ""
         date.text = review?.created_at.formatted(date: .abbreviated, time: .omitted) ?? "Unknown"
-        //image.image = review?.
         fillStarts(rating: review?.rating ?? 0);
+        reviewText.text = review?.comment
+        
+        loadReviewImageIfAny()
+
     }
     
     
@@ -60,6 +66,39 @@ class ReviewDetailsViewController: UIViewController {
         
         
     }
+    
+    private func loadReviewImageIfAny() {
+
+            guard let reviewId = review?.id else { return }
+
+            Task {
+                do {
+                    if let row = try await api.fetchReviewImage(forReviewId: reviewId),
+                       let url = URL(string: row.url) {
+
+                        let (data, _) = try await URLSession.shared.data(from: url)
+                        let uiImage = UIImage(data: data)
+
+                        await MainActor.run {
+                            self.image.image = uiImage
+                            self.image.isHidden = (uiImage == nil)
+                        }
+                    } else {
+                        await MainActor.run {
+                            self.image.image = nil
+                            self.image.isHidden = true
+                        }
+                    }
+                } catch {
+                    // If fails, just hide image
+                    await MainActor.run {
+                        self.image.image = nil
+                        self.image.isHidden = true
+                    }
+                    print("Error loading review image:", error)
+                }
+            }
+        }
 
     /*
     // MARK: - Navigation

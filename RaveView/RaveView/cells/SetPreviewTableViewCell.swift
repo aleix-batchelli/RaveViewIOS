@@ -42,8 +42,6 @@ final class SetPreviewTableViewCell: UITableViewCell {
         DjSetName.font = .boldSystemFont(ofSize: DjSetName.font.pointSize)
         score.font = .boldSystemFont(ofSize: score.font.pointSize)
         
-        
-        
     }
 
     override func prepareForReuse() {

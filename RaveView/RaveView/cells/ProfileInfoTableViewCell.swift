@@ -1,25 +1,22 @@
-//
-//  ProfileInfoTableViewCell.swift
-//  RaveView
-//
-//  Created by Aleix Batchelli I Abad on 8/1/26.
-//
-
 import UIKit
 
-class ProfileInfoTableViewCell: UITableViewCell {
+final class ProfileInfoTableViewCell: UITableViewCell {
 
     @IBOutlet weak var numReviews: UILabel!
+    @IBOutlet weak var logOutButton: UIButton!
     @IBOutlet weak var profileImg: UIImageView!
     @IBOutlet weak var UserNameId: UILabel!
     @IBOutlet weak var UserNameVisible: UILabel!
 
+    weak var delegate: ProfileInfoTableViewCellDelegate?
+
     override func awakeFromNib() {
         super.awakeFromNib()
 
-        // Opcional: avatar redondo
         profileImg.layer.cornerRadius = profileImg.bounds.height / 2
         profileImg.clipsToBounds = true
+
+        logOutButton.addTarget(self, action: #selector(logoutTapped), for: .touchUpInside)
     }
 
     func configure(profile: Profile, reviewsCount: Int) {
@@ -27,13 +24,17 @@ class ProfileInfoTableViewCell: UITableViewCell {
         UserNameVisible.text = profile.display_name ?? profile.username
         numReviews.text = "\(reviewsCount)"
 
-        // Avatar
         if let urlString = profile.avatar_url,
            let url = URL(string: urlString) {
             loadImage(from: url)
         } else {
-            profileImg.image = UIImage(named: "avatar_placeholder") // pon una imagen en Assets si quieres
+            profileImg.image = UIImage(systemName: "person.crop.circle")
         }
+    }
+
+    @IBAction func logoutTapped(_ sender: Any) {
+        print("Hols")
+        delegate?.didTapLogout()
     }
 
     private func loadImage(from url: URL) {
@@ -49,4 +50,3 @@ class ProfileInfoTableViewCell: UITableViewCell {
         }
     }
 }
-

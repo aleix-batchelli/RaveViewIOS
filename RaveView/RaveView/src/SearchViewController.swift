@@ -1,9 +1,4 @@
-//
-//  SearchViewController.swift
-//  RaveView
-//
-//  Created by Aleix Batchelli I Abad on 8/1/26.
-//
+// SearchViewController.swift
 
 import UIKit
 
@@ -15,8 +10,8 @@ final class SearchViewController: UIViewController, UITextFieldDelegate {
 
     private let api = DJSetsAPI(client: SupabaseManager.shared.client)
 
-    // ✅ Now using the Supabase model
     var searchResults: [DJSet] = []
+    private var selectedSet: DJSet?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -26,6 +21,23 @@ final class SearchViewController: UIViewController, UITextFieldDelegate {
         searchBar.delegate = self
         searchBar.placeholder = "Search for sets..."
         searchBar.returnKeyType = .search
+        searchBar.layer.borderColor = UIColor.white.cgColor
+        searchBar.textColor = UIColor.white
+        searchBar.attributedPlaceholder = NSAttributedString(
+            string: "Search...",
+            attributes: [.foregroundColor: UIColor.white]
+        )
+
+        let imageAux = UIImageView(image: UIImage(systemName: "magnifyingglass"))
+        imageAux.tintColor = .white
+        imageAux.contentMode = .scaleAspectFit
+
+        let container = UIView(frame: CGRect(x: 0, y: 0, width: 30, height: 20))
+        imageAux.frame = CGRect(x: 6, y: 0, width: 18, height: 20)
+        container.addSubview(imageAux)
+
+        searchBar.leftView = container
+        searchBar.leftViewMode = .always
 
         tableView.register(UINib(nibName: "SetPreviewTableViewCell", bundle: nil),
                            forCellReuseIdentifier: "SetPreviewCell")
@@ -36,13 +48,9 @@ final class SearchViewController: UIViewController, UITextFieldDelegate {
     }
 
     // MARK: - Search Logic
-
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
-
-        let query = textField.text ?? ""
-        fetchSearchResults(query: query)
-
+        fetchSearchResults(query: textField.text ?? "")
         return true
     }
 
@@ -61,7 +69,6 @@ final class SearchViewController: UIViewController, UITextFieldDelegate {
     }
 
     // MARK: - Header Setup
-
     func setupStaticHeader() {
         guard let customHeader = Bundle.main.loadNibNamed("TopBarTableViewCell", owner: self, options: nil)?.first as? UIView else {
             print("Error: Could not load TopBarTableViewCell from XIB")
@@ -79,14 +86,17 @@ final class SearchViewController: UIViewController, UITextFieldDelegate {
     }
 
     // MARK: - Navigation
-
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "Search_SetDetail",
-           //let destVC = segue.destination as? SetDetailsViewController,
-           let selectedSet = sender as? DJSet {
+           let destinationVC = segue.destination as? SetDetailsViewController {
 
-            // ⚠️ You must update SetDetailsViewController to accept DJSetRow
-            // destVC.setInfoRow = selectedSet
+            // 2 opciones: o pasar el set entero, o pasar solo el id
+            if let set = sender as? DJSet {
+                destinationVC.setInfo = set          // ya tienes todo el set
+                destinationVC.setId = set.id         // opcional, por si lo usas
+            } else if let id = sender as? UUID {
+                destinationVC.setId = id             // si algún día pasas solo el id
+            }
         }
     }
 }
@@ -107,14 +117,15 @@ extension SearchViewController: UITableViewDataSource, UITableViewDelegate {
 
         let item = searchResults[indexPath.row]
         cell.configure(with: item)
-
         return cell
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let selectedItem = searchResults[indexPath.row]
+
+        // Esto dispara prepare(for:sender:) y abre SetDetailsViewController
         performSegue(withIdentifier: "Search_SetDetail", sender: selectedItem)
+
         tableView.deselectRow(at: indexPath, animated: true)
     }
 }
-

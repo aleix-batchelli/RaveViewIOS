@@ -2,13 +2,13 @@
 //  SetDetailsViewController.swift
 //  RaveView
 //
-//  Created by Aleix Batchelli I Abad on 9/1/26.
-//
 
 import UIKit
+import Auth
+import Supabase
 
-class SetDetailsViewController: UIViewController {
-    
+final class SetDetailsViewController: UIViewController {
+
     @IBOutlet weak var headerView: UIView!
     @IBOutlet weak var setImg: UIImageView!
     @IBOutlet weak var duration: UILabel!
@@ -18,53 +18,94 @@ class SetDetailsViewController: UIViewController {
     @IBOutlet weak var author: UILabel!
     @IBOutlet weak var platform: UILabel!
     @IBOutlet weak var tableView: UITableView!
-    
-    // 1. Data Models
+
+    var setId: UUID?
     var setInfo: DJSet?
+
     private let api = DJSetsAPI(client: SupabaseManager.shared.client)
+
     var reviews: [ReviewWithProfile] = []
-    
-    // To keep track of which review was tapped
     var selectedReview: ReviewWithProfile?
-    
-    private let dateFormatter: DateFormatter = {
+
+    // NEW: current user + flag to hide AddReview cell
+    private var currentUserId: UUID?
+    private var hasMyReview: Bool = false
+
+    private let headerDateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
         formatter.timeStyle = .none
         return formatter
     }()
-    
+
+    private func formattedISODate(_ isoString: String) -> String? {
+        let iso1 = ISO8601DateFormatter()
+        iso1.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        if let d = iso1.date(from: isoString) { return headerDateFormatter.string(from: d) }
+
+        let iso2 = ISO8601DateFormatter()
+        if let d = iso2.date(from: isoString) { return headerDateFormatter.string(from: d) }
+
+        return nil
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         setupUIStyles()
-        
+        setupTableView()
+
+        // NEW: load current user id if logged in
+        Task {
+            self.currentUserId = try? await SupabaseManager.shared.client.auth.session.user.id
+        }
+
         if let data = setInfo {
             populateUI(with: data)
-            print("Fetching reviews for Set ID: \(data.id)")
             fetchReviews(query: data.id)
+            return
         }
-        
-        setupTableView()
+
+        if let id = setId {
+            Task { await fetchSetAndLoad(id: id) }
+        }
     }
-    
-    // MARK: - Navigation (Segue Preparation)
+
+    // MARK: - Navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "SetDetails_ReviewDetails" {
-            if let destinationVC = segue.destination as? ReviewDetailsViewController {
-                destinationVC.review = self.selectedReview
-            }
+        if segue.identifier == "SetDetails_ReviewDetails",
+           let destinationVC = segue.destination as? ReviewDetailsViewController {
+            destinationVC.review = self.selectedReview
         }
     }
-    
-    // MARK: - API Fetching
+
+    // MARK: - Fetch Set + Reviews
+    private func fetchSetAndLoad(id: UUID) async {
+        do {
+            let set = try await api.fetchSetById(id)
+
+            await MainActor.run {
+                self.setInfo = set
+                self.populateUI(with: set)
+                self.fetchReviews(query: set.id)
+            }
+        } catch {
+            print("Error fetching set by id:", error)
+        }
+    }
+
     func fetchReviews(query: UUID) {
         Task {
             do {
                 let results = try await api.fetchReviewsWithProfiles(forSetId: query, limit: 30)
-                
+
+                // NEW: determine if current logged user already reviewed this set
+                let myId = self.currentUserId
+                let iHaveReview = (myId != nil) && results.contains(where: { $0.user_id == myId })
+
                 await MainActor.run {
                     self.reviews = results
+                    self.hasMyReview = iHaveReview
                     self.tableView.reloadData()
                 }
             } catch {
@@ -72,31 +113,30 @@ class SetDetailsViewController: UIViewController {
             }
         }
     }
-    
+
     // MARK: - Populate Header UI
     func populateUI(with data: DJSet) {
         name.text = data.title
         author.text = data.artist_name
         platform.text = data.platform.capitalized
         
+
         if let seconds = data.duration_sec {
             let hours = seconds / 3600
             let minutes = (seconds % 3600) / 60
-            if hours > 0 {
-                duration.text = "\(hours)h \(minutes)m"
-            } else {
-                duration.text = "\(minutes)m"
-            }
+            duration.text = hours > 0 ? "\(hours)h \(minutes)m" : "\(minutes)m"
         } else {
             duration.text = "--:--"
         }
-        
-        if let dateObj = data.uploaded_at ?? Optional(data.created_at) {
-            date.text = dateObj
+
+        if let u = data.uploaded_at, let s = formattedISODate(u) {
+            date.text = s
+        } else if let s = formattedISODate(data.created_at) {
+            date.text = s
         } else {
             date.text = "Unknown date"
         }
-        
+
         if let urlString = data.thumbnail_url, let url = URL(string: urlString) {
             Task {
                 do {
@@ -111,12 +151,12 @@ class SetDetailsViewController: UIViewController {
                         }
                     }
                 } catch {
-                    print("Error loading image: \(error)")
+                    print("Error loading image:", error)
                 }
             }
         }
     }
-    
+
     func setupUIStyles() {
         setImg.layer.cornerRadius = 8
         setImg.clipsToBounds = true
@@ -127,12 +167,18 @@ class SetDetailsViewController: UIViewController {
     func setupTableView() {
         tableView.register(UINib(nibName: "ReviewTableViewCell", bundle: nil), forCellReuseIdentifier: "ReviewCell")
         tableView.register(UINib(nibName: "AddReviewTableViewCell", bundle: nil), forCellReuseIdentifier: "AddReviewCell")
-        
+
         tableView.dataSource = self
         tableView.delegate = self
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 80
         tableView.tableFooterView = UIView()
+    }
+    @IBAction func playPressed(_ sender: Any) {
+        if let url = URL(string: setInfo?.url ?? ""){
+            UIApplication.shared.open(url)
+        }
+    
     }
     
     @IBAction func backButtonTapped(_ sender: UIButton) {
@@ -146,22 +192,19 @@ class SetDetailsViewController: UIViewController {
 
 // MARK: - TableView & Cell Delegate
 extension SetDetailsViewController: UITableViewDataSource, UITableViewDelegate, AddReviewTableViewCellDelegate {
-    
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return 2
-    }
-    
+
+    func numberOfSections(in tableView: UITableView) -> Int { 2 }
+
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if section == 0 {
-            return 1
-        } else {
-            return reviews.count
+            // NEW: show AddReview cell only if user logged in AND user has not reviewed yet
+            return (currentUserId != nil && !hasMyReview) ? 1 : 0
         }
+        return reviews.count
     }
-    
+
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
-        // SECTION 0: ADD REVIEW CELL
+
         if indexPath.section == 0 {
             guard let cell = tableView.dequeueReusableCell(withIdentifier: "AddReviewCell", for: indexPath) as? AddReviewTableViewCell else {
                 return UITableViewCell()
@@ -169,73 +212,62 @@ extension SetDetailsViewController: UITableViewDataSource, UITableViewDelegate, 
             cell.delegate = self
             cell.selectionStyle = .none
             return cell
-            
-        // SECTION 1: REVIEW LIST CELLS
-        } else {
-            guard let cell = tableView.dequeueReusableCell(withIdentifier: "ReviewCell", for: indexPath) as? ReviewTableViewCell else {
-                return UITableViewCell()
-            }
-            
-            if indexPath.row < reviews.count {
-                let reviewData = reviews[indexPath.row]
-                cell.date.text = dateFormatter.string(from: reviewData.created_at)
-                cell.review.text = reviewData.comment
-                cell.username.text = reviewData.profiles.display_name ?? reviewData.profiles.username
-            }
-            
-            // NOTE: Ensure selectionStyle is NOT .none if you want the gray tap effect
-            cell.selectionStyle = .default
-            return cell
         }
+
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: "ReviewCell", for: indexPath) as? ReviewTableViewCell else {
+            return UITableViewCell()
+        }
+
+        let r = reviews[indexPath.row]
+        cell.date.text = reviewDateFormatter.string(from: r.created_at)
+        cell.review.text = r.comment
+        cell.username.text = r.profiles.display_name ?? r.profiles.username
+        cell.selectionStyle = .default
+        return cell
     }
-    
-    // ★ NEW: Handle Row Selection
+
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        
-        // Only trigger segue if tapping a Review (Section 1)
         if indexPath.section == 1 {
-            // 1. Get the data for the selected row
-            if indexPath.row < reviews.count {
-                self.selectedReview = reviews[indexPath.row]
-                
-                // 2. Perform Segue
-                performSegue(withIdentifier: "SetDetails_ReviewDetails", sender: self)
-            }
+            selectedReview = reviews[indexPath.row]
+            performSegue(withIdentifier: "SetDetails_ReviewDetails", sender: self)
         }
-        
-        // Deselect the row so it doesn't stay gray
         tableView.deselectRow(at: indexPath, animated: true)
     }
-    
-    // MARK: - AddReviewTableViewCellDelegate Methods
-    
+
+    // MARK: - AddReviewTableViewCellDelegate
     func presentFromCell(_ viewController: UIViewController, animated: Bool) {
-        self.present(viewController, animated: animated, completion: nil)
+        present(viewController, animated: animated, completion: nil)
     }
-    
+
     func didPickImage(_ image: UIImage) {
         print("SetDetailsVC received the image!")
-        // TODO: Store this image
     }
-    
-    func sendReview(rating: Int, comment: String?, wasPresent: Bool, image: UIImage) {
-        guard let currentSet = setInfo else {
-                print("Error: No Set Information found (setInfo is nil).")
-                return
+
+    func sendReview(rating: Int, comment: String?, wasPresent: Bool, image: UIImage?) {
+        guard let currentSet = setInfo else { return }
+        guard currentUserId != nil else { return }
+
+        // NEW: extra safety (even if cell hidden)
+        if hasMyReview { return }
+
+        Task {
+            do {
+                try await api.createReview(
+                    setId: currentSet.id,
+                    rating: rating,
+                    comment: comment,
+                    wasPresent: wasPresent,
+                    image: image
+                )
+                fetchReviews(query: currentSet.id)
+            } catch {
+                print("Error uploading review:", error)
             }
-        
-        var review = Review(
-            set_id: currentSet.id,
-            rating: rating,
-            comment: comment,
-            was_present: wasPresent
-        )
-        //call api / handle no set error!
+        }
     }
-    
 }
 
-private let dateFormatter: DateFormatter = {
+private let reviewDateFormatter: DateFormatter = {
     let df = DateFormatter()
     df.dateStyle = .medium
     df.timeStyle = .none
