@@ -4,7 +4,7 @@ import UIKit
 protocol AddReviewTableViewCellDelegate: AnyObject {
     func presentFromCell(_ viewController: UIViewController, animated: Bool)
     func didPickImage(_ image: UIImage) // Optional: To send the image back to the
-    func sendReview(rating: Int, comment: String?, wasPresent: Bool)
+    func sendReview(rating: Int, comment: String?, wasPresent: Bool, image: UIImage)
     
 }
 
@@ -17,6 +17,7 @@ class AddReviewTableViewCell: UITableViewCell {
     @IBOutlet weak var wasPresent: UISwitch!
     weak var delegate: AddReviewTableViewCellDelegate?
 
+    @IBOutlet weak var addImgButton: UIButton!
     @IBOutlet weak var star5: UIButton!
     @IBOutlet weak var star4: UIButton!
     @IBOutlet weak var star3: UIButton!
@@ -30,7 +31,7 @@ class AddReviewTableViewCell: UITableViewCell {
         return [star1, star2, star3, star4, star5]
     }
     
-    var images: [UIImage] = []
+    var image: UIImage = UIImage()
     
     var starStates: [Int] = [0, 0, 0, 0, 0]
     
@@ -103,19 +104,20 @@ class AddReviewTableViewCell: UITableViewCell {
         delegate?.presentFromCell(picker, animated: true)
     }
     @IBAction func trashBtnPressed(_ sender: Any) {
-        images = []
+        image = UIImage()
         trashBtn.isHidden = true
         imageUploaded.isHidden = true
+        addImgButton.isEnabled = true
     }
     
     
     @IBAction func sendBtnPressed(_ sender: Any) {
         
         //send info to api
-        var rating: Int = starStates.reduce(0, +)
-        var comment: String? = comment.text
-        var wasPresent: Bool = wasPresent.isOn
-        delegate?.sendReview(rating: rating, comment: comment, wasPresent: wasPresent)
+        let rating: Int = starStates.reduce(0, +)
+        let comment: String? = comment.text
+        let wasPresent: Bool = wasPresent.isOn
+        delegate?.sendReview(rating: rating, comment: comment, wasPresent: wasPresent, image: image)
         
     }
 }
@@ -142,7 +144,10 @@ extension AddReviewTableViewCell: UIImagePickerControllerDelegate, UINavigationC
         }
         imageUploaded.isHidden = false
         trashBtn.isHidden = false
-        images.append(selectedImage!)
+        image = selectedImage!
+        addImgButton.isEnabled = false
+        
+        
         
         picker.dismiss(animated: true, completion: nil)
     }

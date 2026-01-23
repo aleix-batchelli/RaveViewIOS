@@ -22,7 +22,17 @@ class SetDetailsViewController: UIViewController {
     // 1. Data Models
     var setInfo: DJSet?
     private let api = DJSetsAPI(client: SupabaseManager.shared.client)
-    var reviews: [ReviewWithProfile] = [] // This array holds the actual downloaded data
+    var reviews: [ReviewWithProfile] = []
+    
+    // To keep track of which review was tapped
+    var selectedReview: ReviewWithProfile?
+    
+    private let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        return formatter
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -38,11 +48,19 @@ class SetDetailsViewController: UIViewController {
         setupTableView()
     }
     
+    // MARK: - Navigation (Segue Preparation)
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "SetDetails_ReviewDetails" {
+            if let destinationVC = segue.destination as? ReviewDetailsViewController {
+                destinationVC.review = self.selectedReview
+            }
+        }
+    }
+    
     // MARK: - API Fetching
     func fetchReviews(query: UUID) {
         Task {
             do {
-                // Fetch reviews from Supabase
                 let results = try await api.fetchReviewsWithProfiles(forSetId: query, limit: 30)
                 
                 await MainActor.run {
@@ -148,8 +166,6 @@ extension SetDetailsViewController: UITableViewDataSource, UITableViewDelegate, 
             guard let cell = tableView.dequeueReusableCell(withIdentifier: "AddReviewCell", for: indexPath) as? AddReviewTableViewCell else {
                 return UITableViewCell()
             }
-            
-            // Connect the delegate so the cell can open the camera
             cell.delegate = self
             cell.selectionStyle = .none
             return cell
@@ -162,35 +178,47 @@ extension SetDetailsViewController: UITableViewDataSource, UITableViewDelegate, 
             
             if indexPath.row < reviews.count {
                 let reviewData = reviews[indexPath.row]
-                // Use the shared 'dateFormatter' property created at top of class
                 cell.date.text = dateFormatter.string(from: reviewData.created_at)
                 cell.review.text = reviewData.comment
                 cell.username.text = reviewData.profiles.display_name ?? reviewData.profiles.username
             }
             
-            cell.selectionStyle = .none
+            // NOTE: Ensure selectionStyle is NOT .none if you want the gray tap effect
+            cell.selectionStyle = .default
             return cell
         }
     }
     
+    // ★ NEW: Handle Row Selection
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
+        // Only trigger segue if tapping a Review (Section 1)
+        if indexPath.section == 1 {
+            // 1. Get the data for the selected row
+            if indexPath.row < reviews.count {
+                self.selectedReview = reviews[indexPath.row]
+                
+                // 2. Perform Segue
+                performSegue(withIdentifier: "SetDetails_ReviewDetails", sender: self)
+            }
+        }
+        
+        // Deselect the row so it doesn't stay gray
+        tableView.deselectRow(at: indexPath, animated: true)
+    }
+    
     // MARK: - AddReviewTableViewCellDelegate Methods
-    // These functions allow the cell to "talk" to this View Controller
     
     func presentFromCell(_ viewController: UIViewController, animated: Bool) {
-        // 1. The cell asks us to present the Camera/Gallery alert
         self.present(viewController, animated: animated, completion: nil)
     }
     
     func didPickImage(_ image: UIImage) {
-        // 2. The cell sends us the selected image
         print("SetDetailsVC received the image!")
-        
-        // TODO: Store this image in a variable so you can upload it when the user clicks "Submit"
-        // e.g., self.selectedReviewImage = image
+        // TODO: Store this image
     }
     
-    func sendReview(rating: Int, comment: String?, wasPresent: Bool) {
-        
+    func sendReview(rating: Int, comment: String?, wasPresent: Bool, image: UIImage) {
         guard let currentSet = setInfo else {
                 print("Error: No Set Information found (setInfo is nil).")
                 return
@@ -202,7 +230,6 @@ extension SetDetailsViewController: UITableViewDataSource, UITableViewDelegate, 
             comment: comment,
             was_present: wasPresent
         )
-        
         //call api / handle no set error!
     }
 }
