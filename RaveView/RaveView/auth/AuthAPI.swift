@@ -25,8 +25,15 @@ struct AuthAPI {
 
     func register(email: String, password: String, username: String, displayName: String?) async throws {
         let response = try await client.auth.signUp(email: email, password: password)
-
         let userId = response.user.id
+
+        let avatarURL: String?
+        do {
+            avatarURL = try await DogAPI.fetchRandomImageURL()
+        } catch {
+            print("DOG API ERROR:", error)
+            avatarURL = nil
+        }
 
         struct ProfileInsert: Encodable {
             let id: String
@@ -41,8 +48,8 @@ struct AuthAPI {
         let payload = ProfileInsert(
             id: userId.uuidString.lowercased(),
             username: username,
-            display_name: username,
-            avatar_url: nil,
+            display_name: displayName,
+            avatar_url: avatarURL,
             is_admin: false,
             followers_count: 0,
             following_count: 0
@@ -54,4 +61,3 @@ struct AuthAPI {
             .execute()
     }
 }
-
