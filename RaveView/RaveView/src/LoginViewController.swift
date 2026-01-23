@@ -43,7 +43,7 @@ private let auth = AuthAPI(client: SupabaseManager.shared.client)
             }catch {
                 print("LOGIN ERROR:", error)
                 await MainActor.run {
-                    self.errorLabel.text = "\(error)"
+                    self.errorLabel.text = "Invalid Credentials"
                 }
             }
         }

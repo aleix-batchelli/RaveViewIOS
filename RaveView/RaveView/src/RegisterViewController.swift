@@ -63,7 +63,7 @@ final class RegisterViewController: UIViewController {
             } catch {
                 print("REGISTER ERROR:", error)
                 await MainActor.run {
-                    self.errorLabel?.text = "\(error)"
+                    self.errorLabel?.text = "Something went wrong."
                 }
             }
         }
