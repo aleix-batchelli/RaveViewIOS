@@ -17,3 +17,16 @@ struct Review: Codable, Identifiable  {
     let updated_at: Date
 }
 
+extension Review {
+    init(set_id: UUID, rating: Int, comment: String?, was_present: Bool) {
+        self.id = 0
+        self.set_id = set_id
+        self.user_id = UUID()
+        self.rating = rating
+        self.comment = comment
+        self.was_present = was_present
+        self.created_at = Date()
+        self.updated_at = Date() 
+    }
+}
+

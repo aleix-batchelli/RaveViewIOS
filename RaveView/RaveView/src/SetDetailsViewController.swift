@@ -22,15 +22,21 @@ class SetDetailsViewController: UIViewController {
     // 1. Data Models
     var setInfo: DJSet?
     private let api = DJSetsAPI(client: SupabaseManager.shared.client)
-    var reviews: [Review] = [] // This array holds the actual downloaded data
+    var reviews: [Review] = []
+    
+    // 2. Performance Optimization: Create formatter once
+    private let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        return formatter
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // Initial UI Setup
         setupUIStyles()
         
-        // 2. Populate Header Info & Fetch Reviews
         if let data = setInfo {
             populateUI(with: data)
             print("Fetching reviews for Set ID: \(data.id)")
@@ -44,12 +50,11 @@ class SetDetailsViewController: UIViewController {
     func fetchReviews(query: UUID) {
         Task {
             do {
-                // Fetch reviews from Supabase
                 let results = try await api.fetchReviews(query: query, limit: 30)
                 
                 await MainActor.run {
                     self.reviews = results
-                    self.tableView.reloadData() // Reload table to show new data
+                    self.tableView.reloadData()
                 }
             } catch {
                 print("Search error:", error)
@@ -63,7 +68,6 @@ class SetDetailsViewController: UIViewController {
         author.text = data.artist_name
         platform.text = data.platform.capitalized
         
-        // Format Duration
         if let seconds = data.duration_sec {
             let hours = seconds / 3600
             let minutes = (seconds % 3600) / 60
@@ -76,17 +80,12 @@ class SetDetailsViewController: UIViewController {
             duration.text = "--:--"
         }
         
-        // Format Date
         if let dateObj = data.uploaded_at ?? Optional(data.created_at) {
-            let formatter = DateFormatter()
-            formatter.dateStyle = .medium
-            formatter.timeStyle = .none
             date.text = dateObj
         } else {
             date.text = "Unknown date"
         }
         
-        // Load Image (Async)
         if let urlString = data.thumbnail_url, let url = URL(string: urlString) {
             Task {
                 do {
@@ -115,10 +114,7 @@ class SetDetailsViewController: UIViewController {
 
     // MARK: - Setup TableView
     func setupTableView() {
-        // Register Review Cell
         tableView.register(UINib(nibName: "ReviewTableViewCell", bundle: nil), forCellReuseIdentifier: "ReviewCell")
-        
-        // Register Add Review Cell
         tableView.register(UINib(nibName: "AddReviewTableViewCell", bundle: nil), forCellReuseIdentifier: "AddReviewCell")
         
         tableView.dataSource = self
@@ -137,28 +133,21 @@ class SetDetailsViewController: UIViewController {
     }
 }
 
-// MARK: - TableView Configuration
-extension SetDetailsViewController: UITableViewDataSource, UITableViewDelegate {
+// MARK: - TableView & Cell Delegate
+extension SetDetailsViewController: UITableViewDataSource, UITableViewDelegate, AddReviewTableViewCellDelegate {
     
-    // 1. Define Sections
     func numberOfSections(in tableView: UITableView) -> Int {
-        // Always 2 sections: Section 0 (Add Review), Section 1 (Review List)
         return 2
     }
     
-    // 2. Define Rows per Section
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if section == 0 {
-            // Section One: Always 1 cell (The "Add Review" button)
             return 1
         } else {
-            // Section Two: The number of downloaded reviews
-            // ERROR FIX: Do not use setInfo?.ratings_count here, or it will crash if data hasn't loaded yet.
             return reviews.count
         }
     }
     
-    // 3. Configure Cells
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         // SECTION 0: ADD REVIEW CELL
@@ -167,6 +156,8 @@ extension SetDetailsViewController: UITableViewDataSource, UITableViewDelegate {
                 return UITableViewCell()
             }
             
+            // Connect the delegate so the cell can open the camera
+            cell.delegate = self
             cell.selectionStyle = .none
             return cell
             
@@ -176,18 +167,48 @@ extension SetDetailsViewController: UITableViewDataSource, UITableViewDelegate {
                 return UITableViewCell()
             }
             
-            // ERROR FIX: Populate cell with actual data
-            // We verify the index is safe before accessing the array
             if indexPath.row < reviews.count {
                 let reviewData = reviews[indexPath.row]
-                
-                // Call the configure method on the cell (ensure you added this to ReviewTableViewCell)
-                cell.date.text = DateFormatter().string(from: reviewData.created_at)
+                // Use the shared 'dateFormatter' property created at top of class
+                cell.date.text = dateFormatter.string(from: reviewData.created_at)
                 cell.review.text = reviewData.comment
             }
             
             cell.selectionStyle = .none
             return cell
         }
+    }
+    
+    // MARK: - AddReviewTableViewCellDelegate Methods
+    // These functions allow the cell to "talk" to this View Controller
+    
+    func presentFromCell(_ viewController: UIViewController, animated: Bool) {
+        // 1. The cell asks us to present the Camera/Gallery alert
+        self.present(viewController, animated: animated, completion: nil)
+    }
+    
+    func didPickImage(_ image: UIImage) {
+        // 2. The cell sends us the selected image
+        print("SetDetailsVC received the image!")
+        
+        // TODO: Store this image in a variable so you can upload it when the user clicks "Submit"
+        // e.g., self.selectedReviewImage = image
+    }
+    
+    func sendReview(rating: Int, comment: String?, wasPresent: Bool) {
+        
+        guard let currentSet = setInfo else {
+                print("Error: No Set Information found (setInfo is nil).")
+                return
+            }
+        
+        var review = Review(
+            set_id: currentSet.id,
+            rating: rating,
+            comment: comment,
+            was_present: wasPresent
+        )
+        
+        //call api / handle no set error!
     }
 }

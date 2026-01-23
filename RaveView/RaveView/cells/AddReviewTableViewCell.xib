@@ -29,7 +29,7 @@
                             <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="iGT-yX-8Z2">
                                 <rect key="frame" x="0.0" y="0.0" width="63" height="28"/>
                                 <color key="onTintColor" white="1" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <color key="thumbTintColor" white="1" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="thumbTintColor" systemColor="secondarySystemBackgroundColor"/>
                             </switch>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="I was there" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HNM-oE-Cb6">
                                 <rect key="frame" x="77" y="0.0" width="82.666666666666686" height="28"/>
@@ -48,6 +48,9 @@
                                 <buttonConfiguration key="configuration" style="plain" image="star" catalog="system" title="">
                                     <color key="baseForegroundColor" systemColor="systemGray2Color"/>
                                 </buttonConfiguration>
+                                <connections>
+                                    <action selector="star1_pressed:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="QbO-Zr-ZXb"/>
+                                </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TIw-Zc-xfc">
                                 <rect key="frame" x="52" y="0.0" width="52" height="34.333333333333336"/>
@@ -55,6 +58,9 @@
                                 <buttonConfiguration key="configuration" style="plain" image="star" catalog="system" title="">
                                     <color key="baseForegroundColor" systemColor="systemGray2Color"/>
                                 </buttonConfiguration>
+                                <connections>
+                                    <action selector="star2_pressed:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="Wqq-WW-Rjh"/>
+                                </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="MZC-Ds-1Ot">
                                 <rect key="frame" x="104" y="0.0" width="52" height="34.333333333333336"/>
@@ -62,6 +68,9 @@
                                 <buttonConfiguration key="configuration" style="plain" image="star" catalog="system" title="">
                                     <color key="baseForegroundColor" systemColor="systemGray2Color"/>
                                 </buttonConfiguration>
+                                <connections>
+                                    <action selector="star3_pressed:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="fDQ-o3-gKU"/>
+                                </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9mJ-wD-v5o">
                                 <rect key="frame" x="156" y="0.0" width="52" height="34.333333333333336"/>
@@ -69,6 +78,9 @@
                                 <buttonConfiguration key="configuration" style="plain" image="star" catalog="system" title="">
                                     <color key="baseForegroundColor" systemColor="systemGray2Color"/>
                                 </buttonConfiguration>
+                                <connections>
+                                    <action selector="star4_pressed:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="knV-wS-7pf"/>
+                                </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="EIX-cz-cJM">
                                 <rect key="frame" x="208" y="0.0" width="52" height="34.333333333333336"/>
@@ -76,6 +88,9 @@
                                 <buttonConfiguration key="configuration" style="plain" image="star" catalog="system" title="">
                                     <color key="baseForegroundColor" systemColor="systemGray2Color"/>
                                 </buttonConfiguration>
+                                <connections>
+                                    <action selector="star5_pressed:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="bIv-ov-Al4"/>
+                                </connections>
                             </button>
                         </subviews>
                     </stackView>
@@ -88,6 +103,9 @@
                                 <buttonConfiguration key="configuration" style="plain" image="paperclip" catalog="system" title="">
                                     <color key="baseForegroundColor" systemColor="systemGray2Color"/>
                                 </buttonConfiguration>
+                                <connections>
+                                    <action selector="addImgPressed:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="t6I-jA-lPK"/>
+                                </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SWO-zz-6CB">
                                 <rect key="frame" x="49.333333333333314" y="0.0" width="50.666666666666657" height="34.333333333333336"/>
@@ -95,7 +113,36 @@
                                 <buttonConfiguration key="configuration" style="plain" image="paperplane" catalog="system" title="">
                                     <color key="baseForegroundColor" systemColor="systemGray2Color"/>
                                 </buttonConfiguration>
+                                <connections>
+                                    <action selector="sendBtnPressed:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="6GB-td-aSu"/>
+                                </connections>
                             </button>
+                        </subviews>
+                    </stackView>
+                    <stackView opaque="NO" contentMode="scaleToFill" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="dJ0-zD-v26">
+                        <rect key="frame" x="407" y="140.33333333333334" width="90" height="35"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TTL-AP-Azd">
+                                <rect key="frame" x="0.0" y="0.0" width="35" height="35"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="35" id="Cst-IS-IBh"/>
+                                    <constraint firstAttribute="height" constant="35" id="EkJ-WS-PCJ"/>
+                                </constraints>
+                                <color key="tintColor" systemColor="systemRedColor"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" image="trash.fill" catalog="system" title=""/>
+                                <connections>
+                                    <action selector="trashBtnPressed:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="e2u-x0-ePb"/>
+                                </connections>
+                            </button>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="photo.artframe" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="4bA-x5-8jJ">
+                                <rect key="frame" x="55" y="1.6666666666666643" width="35" height="32"/>
+                                <color key="tintColor" systemColor="systemGray2Color"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="35" id="6Oe-fg-B5i"/>
+                                    <constraint firstAttribute="height" constant="35" id="Q6e-6u-kaj"/>
+                                </constraints>
+                            </imageView>
                         </subviews>
                     </stackView>
                 </subviews>
@@ -104,6 +151,7 @@
                     <constraint firstItem="Xvj-kR-k63" firstAttribute="leading" secondItem="ca8-SW-Gce" secondAttribute="leading" id="AEK-bO-ThF"/>
                     <constraint firstItem="jOH-js-ydX" firstAttribute="top" secondItem="Xvj-kR-k63" secondAttribute="bottom" constant="16" id="Ekv-3V-2z2"/>
                     <constraint firstAttribute="bottom" secondItem="fBj-Q1-X4W" secondAttribute="bottom" constant="8" id="Imx-d8-CP2"/>
+                    <constraint firstItem="fBj-Q1-X4W" firstAttribute="centerX" secondItem="dJ0-zD-v26" secondAttribute="centerX" id="JS3-DD-83f"/>
                     <constraint firstItem="fBj-Q1-X4W" firstAttribute="bottom" secondItem="jOH-js-ydX" secondAttribute="bottom" id="KQi-Kw-Xd9"/>
                     <constraint firstAttribute="trailing" secondItem="ca8-SW-Gce" secondAttribute="trailing" constant="8" id="MXd-Il-0LQ"/>
                     <constraint firstItem="jOH-js-ydX" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="8" id="Reb-sn-Usc"/>
@@ -111,6 +159,7 @@
                     <constraint firstItem="ca8-SW-Gce" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="16" id="h19-h3-8al"/>
                     <constraint firstItem="ca8-SW-Gce" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="8" id="hiI-jh-hEg"/>
                     <constraint firstItem="Xvj-kR-k63" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="8" id="tbw-4J-pmE"/>
+                    <constraint firstItem="dJ0-zD-v26" firstAttribute="centerY" secondItem="Xvj-kR-k63" secondAttribute="centerY" id="tjZ-tW-Iup"/>
                     <constraint firstAttribute="trailing" secondItem="fBj-Q1-X4W" secondAttribute="trailing" constant="8" id="xxH-LM-Q27"/>
                     <constraint firstItem="Xvj-kR-k63" firstAttribute="top" secondItem="ca8-SW-Gce" secondAttribute="bottom" constant="16" id="zB6-Cx-XvE"/>
                 </constraints>
@@ -125,18 +174,37 @@
             </tableViewCellContentView>
             <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
             <color key="backgroundColor" red="1" green="1" blue="1" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
+            <connections>
+                <outlet property="comment" destination="ca8-SW-Gce" id="DVy-TS-gTo"/>
+                <outlet property="imageUploaded" destination="4bA-x5-8jJ" id="uBW-pM-cIg"/>
+                <outlet property="star1" destination="VCU-rZ-FkF" id="uyh-Pi-c8D"/>
+                <outlet property="star2" destination="TIw-Zc-xfc" id="x9G-cr-Sl1"/>
+                <outlet property="star3" destination="MZC-Ds-1Ot" id="xbx-bM-c2D"/>
+                <outlet property="star4" destination="9mJ-wD-v5o" id="kbp-ZS-Ehh"/>
+                <outlet property="star5" destination="EIX-cz-cJM" id="ZEO-cT-Mfv"/>
+                <outlet property="trashBtn" destination="TTL-AP-Azd" id="4iq-of-Pmh"/>
+                <outlet property="wasPresent" destination="iGT-yX-8Z2" id="7JO-VE-cmk"/>
+            </connections>
             <point key="canvasLocation" x="-70.229007633587784" y="169.01408450704227"/>
         </tableViewCell>
     </objects>
     <resources>
         <image name="paperclip" catalog="system" width="121" height="128"/>
         <image name="paperplane" catalog="system" width="128" height="119"/>
+        <image name="photo.artframe" catalog="system" width="128" height="93"/>
         <image name="star" catalog="system" width="128" height="116"/>
+        <image name="trash.fill" catalog="system" width="117" height="128"/>
+        <systemColor name="secondarySystemBackgroundColor">
+            <color red="0.94901960780000005" green="0.94901960780000005" blue="0.96862745100000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
         <systemColor name="systemGray2Color">
             <color red="0.68235294120000001" green="0.68235294120000001" blue="0.69803921570000005" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemGrayColor">
             <color red="0.5568627451" green="0.5568627451" blue="0.57647058819999997" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+        <systemColor name="systemRedColor">
+            <color red="1" green="0.23137254900000001" blue="0.18823529410000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

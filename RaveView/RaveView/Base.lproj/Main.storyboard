@@ -327,15 +327,8 @@
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="app-wallpaper.png" translatesAutoresizingMaskIntoConstraints="NO" id="gZZ-nR-k0H">
                                 <rect key="frame" x="0.0" y="0.0" width="402" height="874"/>
                             </imageView>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="n0H-KV-JVS">
-                                <rect key="frame" x="0.0" y="178" width="402" height="100"/>
-                                <color key="backgroundColor" white="1" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="100" id="GQ2-th-XqO"/>
-                                </constraints>
-                            </view>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="GWq-n7-NKf">
-                                <rect key="frame" x="16" y="284" width="370" height="271"/>
+                                <rect key="frame" x="16" y="178" width="370" height="271"/>
                                 <subviews>
                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="placeholder.png" translatesAutoresizingMaskIntoConstraints="NO" id="7i5-x3-wni">
                                         <rect key="frame" x="0.0" y="0.0" width="370" height="200"/>
@@ -373,7 +366,7 @@
                                                         </subviews>
                                                     </stackView>
                                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="top" spacing="6" translatesAutoresizingMaskIntoConstraints="NO" id="sYj-vY-9Jb">
-                                                        <rect key="frame" x="0.0" y="22.333333333333368" width="72" height="40.666666666666657"/>
+                                                        <rect key="frame" x="0.0" y="22.333333333333311" width="72" height="40.666666666666657"/>
                                                         <subviews>
                                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Set name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="GNb-Od-QhK">
                                                                 <rect key="frame" x="0.0" y="0.0" width="72" height="20.333333333333332"/>
@@ -382,7 +375,7 @@
                                                                 <nil key="highlightedColor"/>
                                                             </label>
                                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Author" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0Sk-w1-mXw">
-                                                                <rect key="frame" x="0.0" y="26.333333333333254" width="38" height="14.333333333333332"/>
+                                                                <rect key="frame" x="0.0" y="26.333333333333368" width="38" height="14.333333333333332"/>
                                                                 <fontDescription key="fontDescription" type="system" pointSize="12"/>
                                                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                 <nil key="highlightedColor"/>
@@ -401,7 +394,7 @@
                                 </subviews>
                             </stackView>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="-1" estimatedSectionHeaderHeight="-1" sectionFooterHeight="-1" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="2Ee-4a-8rD">
-                                <rect key="frame" x="0.0" y="563" width="402" height="311"/>
+                                <rect key="frame" x="0.0" y="465" width="402" height="409"/>
                                 <color key="backgroundColor" white="1" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </tableView>
                         </subviews>
@@ -409,16 +402,13 @@
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <color key="tintColor" systemColor="systemGreenColor"/>
                         <constraints>
-                            <constraint firstItem="9Sp-Jg-mhJ" firstAttribute="trailing" secondItem="n0H-KV-JVS" secondAttribute="trailing" id="80b-Zy-ju8"/>
                             <constraint firstItem="9Sp-Jg-mhJ" firstAttribute="trailing" secondItem="2Ee-4a-8rD" secondAttribute="trailing" id="ApV-Dp-sZB"/>
-                            <constraint firstItem="2Ee-4a-8rD" firstAttribute="top" secondItem="GWq-n7-NKf" secondAttribute="bottom" constant="8" id="BWg-Yg-COX"/>
                             <constraint firstItem="GWq-n7-NKf" firstAttribute="leading" secondItem="9Sp-Jg-mhJ" secondAttribute="leading" constant="16" id="FQQ-9O-t5n"/>
-                            <constraint firstItem="n0H-KV-JVS" firstAttribute="leading" secondItem="9Sp-Jg-mhJ" secondAttribute="leading" id="FRG-pl-57I"/>
-                            <constraint firstItem="n0H-KV-JVS" firstAttribute="top" secondItem="9Sp-Jg-mhJ" secondAttribute="top" id="MRT-9J-mRZ"/>
+                            <constraint firstItem="2Ee-4a-8rD" firstAttribute="top" secondItem="GWq-n7-NKf" secondAttribute="bottom" constant="16" id="Fka-fv-bLg"/>
+                            <constraint firstItem="GWq-n7-NKf" firstAttribute="top" secondItem="9Sp-Jg-mhJ" secondAttribute="top" id="Py6-z0-cFn"/>
                             <constraint firstItem="9Sp-Jg-mhJ" firstAttribute="trailing" secondItem="GWq-n7-NKf" secondAttribute="trailing" constant="16" id="Vrc-eP-W06"/>
                             <constraint firstAttribute="bottom" secondItem="gZZ-nR-k0H" secondAttribute="bottom" id="ZC6-r2-ca1"/>
                             <constraint firstItem="gZZ-nR-k0H" firstAttribute="top" secondItem="wit-0T-knl" secondAttribute="top" id="iA3-ge-n32"/>
-                            <constraint firstItem="GWq-n7-NKf" firstAttribute="top" secondItem="n0H-KV-JVS" secondAttribute="bottom" constant="6" id="ovc-R6-E5u"/>
                             <constraint firstItem="2Ee-4a-8rD" firstAttribute="leading" secondItem="9Sp-Jg-mhJ" secondAttribute="leading" id="pf2-Vu-kLS"/>
                             <constraint firstAttribute="bottom" secondItem="2Ee-4a-8rD" secondAttribute="bottom" id="swA-Bf-S1x"/>
                             <constraint firstItem="gZZ-nR-k0H" firstAttribute="leading" secondItem="9Sp-Jg-mhJ" secondAttribute="leading" id="wco-zT-UUv"/>
@@ -430,7 +420,6 @@
                         <outlet property="author" destination="0Sk-w1-mXw" id="rlx-cE-Txq"/>
                         <outlet property="date" destination="ge5-sd-WAA" id="SEF-Kr-U6x"/>
                         <outlet property="duration" destination="vUI-Rx-gJi" id="f7f-fu-kwh"/>
-                        <outlet property="headerView" destination="n0H-KV-JVS" id="kWM-Jo-eC6"/>
                         <outlet property="name" destination="GNb-Od-QhK" id="TRJ-bV-AaH"/>
                         <outlet property="platform" destination="ge5-sd-WAA" id="P9U-1u-6Ik"/>
                         <outlet property="playBtn" destination="GNJ-19-qkq" id="WLa-Ei-a9r"/>
