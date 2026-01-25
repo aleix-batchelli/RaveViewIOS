@@ -23,7 +23,6 @@ final class RegisterViewController: UIViewController {
         super.viewDidLoad()
         errorLabel?.text = ""
 
-        // Recomendado para email
         email.autocapitalizationType = .none
         email.autocorrectionType = .no
     }

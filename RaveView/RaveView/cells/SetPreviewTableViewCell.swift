@@ -14,13 +14,11 @@ final class SetPreviewTableViewCell: UITableViewCell {
     override func awakeFromNib() {
         super.awakeFromNib()
 
-        // Image
         img.layer.borderColor = UIColor.white.cgColor
         img.layer.borderWidth = 1
         img.clipsToBounds = true
         img.contentMode = .scaleAspectFill
 
-        // Blur
         let blur = UIBlurEffect(style: .dark)
         blurView = UIVisualEffectView(effect: blur)
         blurView.frame = img.bounds
@@ -28,17 +26,15 @@ final class SetPreviewTableViewCell: UITableViewCell {
         blurView.alpha = 0.6
         img.addSubview(blurView)
 
-        // TEXT -> white
         DjSetName.textColor = .white
         ArtistName.textColor = .white
         numReviews.textColor = .white
         score.textColor = .white
 
-        // Icons -> white (SF Symbols or template images)
         SCorYT.tintColor = .white
         SCorYT.image = SCorYT.image?.withRenderingMode(.alwaysTemplate)
 
-        // Optional: make fonts bold / readable
+        
         DjSetName.font = .boldSystemFont(ofSize: DjSetName.font.pointSize)
         score.font = .boldSystemFont(ofSize: score.font.pointSize)
         

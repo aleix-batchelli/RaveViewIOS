@@ -1,10 +1,7 @@
-// HomeViewController.swift
-
 import UIKit
 import Foundation
 import Supabase
 
-// MARK: - Model (matches table dj_sets)
 struct DJSetRow: Codable, Identifiable {
     let id: UUID
     let title: String
@@ -19,10 +16,6 @@ struct DJSetRow: Codable, Identifiable {
     let avg_rating: Double?
     let ratings_count: Int?
 }
-
-
-
-
 
 class HomeViewController: UIViewController {
 
@@ -49,7 +42,7 @@ class HomeViewController: UIViewController {
         getSets()
     }
 
-    // Fetch top 10 sets by number of reviews (ratings_count)
+    
     func getSets() {
         Task {
             do {
@@ -64,16 +57,13 @@ class HomeViewController: UIViewController {
         }
     }
 
-    // MARK: - Navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         
-        // 1. CORRECCIÓN: Usa el mismo ID que pusiste en didSelectRowAt
         if segue.identifier == "Home_SetDetail" {
             
             if let destVC = segue.destination as? SetDetailsViewController,
                let selectedSet = sender as? DJSet {
                 
-                // 2. CORRECCIÓN: Descomenta esta línea para pasar los datos
                 destVC.setInfo = selectedSet
             }
         }
@@ -97,7 +87,6 @@ class HomeViewController: UIViewController {
     }
 }
 
-// MARK: - UITableViewDataSource & Delegate
 extension HomeViewController: UITableViewDataSource, UITableViewDelegate {
 
     func numberOfSections(in tableView: UITableView) -> Int { 1 }
@@ -119,7 +108,7 @@ extension HomeViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let selectedItem = sets[indexPath.row]
 
-        // If your segue id is "Home_SetDetail", keep that
+        
         performSegue(withIdentifier: "Home_SetDetail", sender: selectedItem)
 
         tableView.deselectRow(at: indexPath, animated: true)

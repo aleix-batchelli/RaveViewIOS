@@ -1,5 +1,3 @@
-// SearchViewController.swift
-
 import UIKit
 
 final class SearchViewController: UIViewController, UITextFieldDelegate {
@@ -47,7 +45,6 @@ final class SearchViewController: UIViewController, UITextFieldDelegate {
         tableView.tableFooterView = UIView()
     }
 
-    // MARK: - Search Logic
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         fetchSearchResults(query: textField.text ?? "")
@@ -68,7 +65,6 @@ final class SearchViewController: UIViewController, UITextFieldDelegate {
         }
     }
 
-    // MARK: - Header Setup
     func setupStaticHeader() {
         guard let customHeader = Bundle.main.loadNibNamed("TopBarTableViewCell", owner: self, options: nil)?.first as? UIView else {
             print("Error: Could not load TopBarTableViewCell from XIB")
@@ -85,23 +81,21 @@ final class SearchViewController: UIViewController, UITextFieldDelegate {
         ])
     }
 
-    // MARK: - Navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "Search_SetDetail",
            let destinationVC = segue.destination as? SetDetailsViewController {
 
-            // 2 opciones: o pasar el set entero, o pasar solo el id
+           
             if let set = sender as? DJSet {
-                destinationVC.setInfo = set          // ya tienes todo el set
-                destinationVC.setId = set.id         // opcional, por si lo usas
+                destinationVC.setInfo = set
+                destinationVC.setId = set.id
             } else if let id = sender as? UUID {
-                destinationVC.setId = id             // si algún día pasas solo el id
+                destinationVC.setId = id
             }
         }
     }
 }
 
-// MARK: - TableView DataSource & Delegate
 extension SearchViewController: UITableViewDataSource, UITableViewDelegate {
 
     func numberOfSections(in tableView: UITableView) -> Int { 1 }
@@ -123,7 +117,6 @@ extension SearchViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let selectedItem = searchResults[indexPath.row]
 
-        // Esto dispara prepare(for:sender:) y abre SetDetailsViewController
         performSegue(withIdentifier: "Search_SetDetail", sender: selectedItem)
 
         tableView.deselectRow(at: indexPath, animated: true)

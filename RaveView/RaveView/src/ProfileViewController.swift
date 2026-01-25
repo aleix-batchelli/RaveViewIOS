@@ -1,8 +1,3 @@
-//
-//  ProfileViewController.swift
-//  RaveView
-//
-
 import UIKit
 
 protocol ProfileInfoTableViewCellDelegate: AnyObject {
@@ -56,7 +51,6 @@ final class ProfileViewController: UIViewController {
         }
     }
 
-    // MARK: - Header Setup
 
     private func setupStaticHeader() {
         guard let loaded = Bundle.main
@@ -78,13 +72,11 @@ final class ProfileViewController: UIViewController {
         ])
     }
 
-    // MARK: - Segue
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "Profile_SetDetail" {
             guard let setId = selectedSetId else { return }
 
-            // Destination may be direct VC or embedded in UINavigationController
             if let vc = segue.destination as? SetDetailsViewController {
                 vc.setId = setId
             } else if let nav = segue.destination as? UINavigationController,
@@ -96,7 +88,6 @@ final class ProfileViewController: UIViewController {
     
 }
 
-// MARK: - UITableViewDataSource & Delegate
 extension ProfileViewController: UITableViewDataSource, UITableViewDelegate {
 
     func numberOfSections(in tableView: UITableView) -> Int { 1 }

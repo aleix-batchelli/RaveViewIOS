@@ -9,7 +9,7 @@ import Foundation
 import UIKit
 import Supabase
 
-struct DJSet:  Codable, Identifiable  { // Renamed from Set to DJSet
+struct DJSet:  Codable, Identifiable  {
     let id: UUID
     let title: String
     let artist_name: String
@@ -22,7 +22,6 @@ struct DJSet:  Codable, Identifiable  { // Renamed from Set to DJSet
     let created_at: String
     let avg_rating: Double?
     let ratings_count: Int?
-    //var reviews: [Review] // Assuming you have a Review struct defined elsewhere
 }
 
 

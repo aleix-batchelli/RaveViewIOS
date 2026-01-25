@@ -27,7 +27,6 @@ final class SetDetailsViewController: UIViewController {
     var reviews: [ReviewWithProfile] = []
     var selectedReview: ReviewWithProfile?
 
-    // NEW: current user + flag to hide AddReview cell
     private var currentUserId: UUID?
     private var hasMyReview: Bool = false
 
@@ -55,7 +54,6 @@ final class SetDetailsViewController: UIViewController {
         setupUIStyles()
         setupTableView()
 
-        // NEW: load current user id if logged in
         Task {
             self.currentUserId = try? await SupabaseManager.shared.client.auth.session.user.id
         }
@@ -71,7 +69,6 @@ final class SetDetailsViewController: UIViewController {
         }
     }
 
-    // MARK: - Navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "SetDetails_ReviewDetails",
            let destinationVC = segue.destination as? ReviewDetailsViewController {
@@ -79,7 +76,6 @@ final class SetDetailsViewController: UIViewController {
         }
     }
 
-    // MARK: - Fetch Set + Reviews
     private func fetchSetAndLoad(id: UUID) async {
         do {
             let set = try await api.fetchSetById(id)
@@ -99,7 +95,6 @@ final class SetDetailsViewController: UIViewController {
             do {
                 let results = try await api.fetchReviewsWithProfiles(forSetId: query, limit: 30)
 
-                // NEW: determine if current logged user already reviewed this set
                 let myId = self.currentUserId
                 let iHaveReview = (myId != nil) && results.contains(where: { $0.user_id == myId })
 
@@ -114,7 +109,6 @@ final class SetDetailsViewController: UIViewController {
         }
     }
 
-    // MARK: - Populate Header UI
     func populateUI(with data: DJSet) {
         name.text = data.title
         author.text = data.artist_name
@@ -163,7 +157,6 @@ final class SetDetailsViewController: UIViewController {
         setImg.contentMode = .scaleAspectFill
     }
 
-    // MARK: - Setup TableView
     func setupTableView() {
         tableView.register(UINib(nibName: "ReviewTableViewCell", bundle: nil), forCellReuseIdentifier: "ReviewCell")
         tableView.register(UINib(nibName: "AddReviewTableViewCell", bundle: nil), forCellReuseIdentifier: "AddReviewCell")
@@ -190,14 +183,12 @@ final class SetDetailsViewController: UIViewController {
     }
 }
 
-// MARK: - TableView & Cell Delegate
 extension SetDetailsViewController: UITableViewDataSource, UITableViewDelegate, AddReviewTableViewCellDelegate {
 
     func numberOfSections(in tableView: UITableView) -> Int { 2 }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if section == 0 {
-            // NEW: show AddReview cell only if user logged in AND user has not reviewed yet
             return (currentUserId != nil && !hasMyReview) ? 1 : 0
         }
         return reviews.count
@@ -234,7 +225,6 @@ extension SetDetailsViewController: UITableViewDataSource, UITableViewDelegate, 
         tableView.deselectRow(at: indexPath, animated: true)
     }
 
-    // MARK: - AddReviewTableViewCellDelegate
     func presentFromCell(_ viewController: UIViewController, animated: Bool) {
         present(viewController, animated: animated, completion: nil)
     }
@@ -247,7 +237,6 @@ extension SetDetailsViewController: UITableViewDataSource, UITableViewDelegate, 
         guard let currentSet = setInfo else { return }
         guard currentUserId != nil else { return }
 
-        // NEW: extra safety (even if cell hidden)
         if hasMyReview { return }
 
         Task {
